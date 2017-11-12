@@ -18,11 +18,15 @@
 package ch.jbead.view;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.awt.RenderingHints;
+
+import javax.swing.Scrollable;
 
 import ch.jbead.BeadCounts;
 import ch.jbead.BeadList;
@@ -138,6 +142,13 @@ public class ReportPanel extends BasePanel {
                 x1 += colwidth;
                 y = ystart;
             }
+            // dynamically adjust panel max width
+            if(x1 > getWidth()) {
+                int newWidth = x1+(colwidth);
+                Dimension d2 = new Dimension(newWidth, (int)this.getSize().getHeight());
+                setPreferredSize(d2);
+                setSize(d2);
+            }
         }
     }
 
@@ -187,5 +198,8 @@ public class ReportPanel extends BasePanel {
     public void repeatChanged(int repeat) {
         repaint();
     }
+
+
+
 
 }

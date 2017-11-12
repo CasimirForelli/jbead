@@ -19,6 +19,7 @@ package ch.jbead;
 
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Frame;
 import java.awt.GraphicsConfiguration;
@@ -50,6 +51,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import javax.swing.Action;
+import javax.swing.BorderFactory;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -60,6 +62,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
+import javax.swing.JScrollPane;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
@@ -436,6 +439,7 @@ public class JBeadFrame extends JFrame implements Localization, View, ModelListe
         toolbars.add(createToolbar());
         toolbars.add(colors = createColorbar());
         add(toolbars, BorderLayout.NORTH);
+
         add(main, BorderLayout.CENTER);
         createMainGUI();
     }
@@ -615,7 +619,17 @@ public class JBeadFrame extends JFrame implements Localization, View, ModelListe
         c.weightx = 5;
         c.weighty = 1;
         c.fill = GridBagConstraints.BOTH;
-        main.add(report, c);
+
+        // remember original Dimension
+        Dimension d= report.getPreferredSize();
+        int h = (int) d.getHeight();
+//        report.setPreferredSize(new Dimension(6000, h));
+        JScrollPane scrollFrame = new JScrollPane(report);
+        report.setAutoscrolls(true);
+        // set scrollframe size to original dimension
+        scrollFrame.setPreferredSize(d);
+        scrollFrame.setBorder(BorderFactory.createEmptyBorder());
+        main.add(scrollFrame, c);
 
         c = new GridBagConstraints();
         c.gridx = 3;
@@ -627,6 +641,7 @@ public class JBeadFrame extends JFrame implements Localization, View, ModelListe
         c.gridy = 0;
         c.fill = GridBagConstraints.VERTICAL;
         main.add(scrollbar, c);
+
     }
 
     public boolean isDraftVisible() {
