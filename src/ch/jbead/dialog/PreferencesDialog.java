@@ -37,6 +37,7 @@ import ch.jbead.Localization;
 import ch.jbead.Model;
 import ch.jbead.Settings;
 import ch.jbead.View;
+import ch.jbead.audio.TalkingManager;
 
 public class PreferencesDialog extends JDialog {
     private static final long serialVersionUID = 1L;
@@ -45,6 +46,14 @@ public class PreferencesDialog extends JDialog {
     private JTextField organization;
     private JTextField symbols;
     private JCheckBox disablestartcheck;
+
+    //Audio setting fields
+    private JTextField pathToTts; //"%USERHOME%\\tts\\tts.exe";
+    private JTextField ttsParams; //"-f 3 -v 0 -o <out> <text>";
+    private JTextField fileType; //  "wav";
+    private JTextField pathToSpeachFiles; // "%TMP%\\jbead_audio_cache";
+
+
 
     public PreferencesDialog(Localization localization, final Model model, final View view) {
         setTitle(localization.getString("preferences.title"));
@@ -112,6 +121,54 @@ public class PreferencesDialog extends JDialog {
         constraints.anchor = GridBagConstraints.WEST;
         form.add(disablestartcheck = new JCheckBox(localization.getString("preferences.disablestartcheck")), constraints);
         disablestartcheck.setSelected(!settings.loadBoolean("check_at_start", true));
+
+        settings.setCategory("audio");
+
+        // PathToTTS
+        constraints = new GridBagConstraints();
+        constraints.gridx = 0;
+        constraints.gridy = 4;
+        constraints.ipadx = 3;
+        constraints.anchor = GridBagConstraints.WEST;
+        form.add(new JLabel(localization.getString("preferences.pathToTts")), constraints);
+
+        constraints = new GridBagConstraints();
+        constraints.gridx = 1;
+        constraints.gridy = 4;
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        form.add(pathToTts = new JTextField(settings.loadString("pathToTts", TalkingManager.DEFAULT_PATH_TO_TTS)), constraints);
+        pathToTts.setColumns(30);
+
+        // ttsParams
+        constraints = new GridBagConstraints();
+        constraints.gridx = 0;
+        constraints.gridy = 5;
+        constraints.ipadx = 3;
+        constraints.anchor = GridBagConstraints.WEST;
+        form.add(new JLabel(localization.getString("preferences.ttsParams")), constraints);
+
+        constraints = new GridBagConstraints();
+        constraints.gridx = 1;
+        constraints.gridy = 5;
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        form.add(ttsParams = new JTextField(settings.loadString("ttsParams", TalkingManager.DEFAULT_TTS_PARAMS)), constraints);
+        ttsParams.setColumns(30);
+
+        // pathToSpeachFiles
+        constraints = new GridBagConstraints();
+        constraints.gridx = 0;
+        constraints.gridy = 6;
+        constraints.ipadx = 3;
+        constraints.anchor = GridBagConstraints.WEST;
+        form.add(new JLabel(localization.getString("preferences.pathToSpeachFiles")), constraints);
+
+        constraints = new GridBagConstraints();
+        constraints.gridx = 1;
+        constraints.gridy = 6;
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        form.add(pathToSpeachFiles = new JTextField(settings.loadString("pathToSpeachFiles", TalkingManager.DEFAULT_PATH_TO_SPEACH_FILES)), constraints);
+        pathToSpeachFiles.setColumns(30);
+
         add(form, BorderLayout.CENTER);
 
         JPanel buttons = new JPanel();
@@ -143,6 +200,12 @@ public class PreferencesDialog extends JDialog {
                 }
                 settings.setCategory("update");
                 settings.saveBoolean("check_at_start", !disablestartcheck.isSelected());
+
+                settings.setCategory("audio");
+                settings.saveString("pathToTts", pathToTts.getText());
+                settings.saveString("ttsParams", ttsParams.getText());
+                settings.saveString("pathToSpeachFiles", pathToSpeachFiles.getText());
+
                 if (!model.getAuthor().equals(author.getText())) {
                     model.setModified();
                     model.setAuthor(author.getText());
