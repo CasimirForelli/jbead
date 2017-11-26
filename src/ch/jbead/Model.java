@@ -22,10 +22,13 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 
 import javax.swing.JFileChooser;
 
+import ch.jbead.audio.DefaultColorNameMap;
 import ch.jbead.fileformat.Memento;
 import ch.jbead.storage.JBeadFileFormatException;
 
@@ -36,6 +39,7 @@ public class Model implements ColorTable {
     private BeadUndo undo = new BeadUndo();
     private BeadField field = new BeadField();
     private List<Color> colors = new ArrayList<Color>();
+    private Map<Byte, String> colorNamesMap = DefaultColorNameMap.create(Locale.getDefault());
     private byte colorIndex;
     private int gridx;
     private int gridy;
@@ -52,9 +56,9 @@ public class Model implements ColorTable {
     private String author = "";
     private String organization = "";
     private String notes = "";
+    private int lastReadingPos = -1;
 
     private List<ModelListener> listeners = new ArrayList<ModelListener>();
-
 
     public Model(Localization localization) {
         repeatDirty = false;
@@ -350,8 +354,10 @@ public class Model implements ColorTable {
     }
 
     public void normalizeShift() {
-        while (shift < 0) shift += getWidth();
-        while (shift > getWidth()) shift -= getWidth();
+        while (shift < 0)
+            shift += getWidth();
+        while (shift > getWidth())
+            shift -= getWidth();
     }
 
     public void clear() {
@@ -370,6 +376,7 @@ public class Model implements ColorTable {
         file = new File(unnamed);
         saved = false;
         modified = false;
+        lastReadingPos = -1;
         fireModelChanged();
     }
 
@@ -530,7 +537,7 @@ public class Model implements ColorTable {
         int m1 = getWidth();
         int m2 = m1 + 1;
         int k = 0;
-        int m = m1 ;
+        int m = m1;
         while (idx >= m) {
             idx -= m;
             k++;
@@ -573,12 +580,14 @@ public class Model implements ColorTable {
         field.saveTo(memento);
         memento.setColors(colors);
         memento.setColorIndex(colorIndex);
+        memento.setColorNames(colorNamesMap);
         memento.setZoomIndex(zoomIndex);
         memento.setShift(shift);
         memento.setScroll(scroll);
         memento.setAuthor(author);
         memento.setOrganization(organization);
         memento.setNotes(notes);
+        memento.setLastReadingPos(lastReadingPos);
     }
 
     public void loadFrom(Memento memento) {
@@ -586,6 +595,7 @@ public class Model implements ColorTable {
         colors = memento.getColors();
         fillDefaultColorsUp();
         colorIndex = memento.getColorIndex();
+        colorNamesMap = memento.getColorNames();
         zoomIndex = memento.getZoomIndex();
         updateZoom();
         shift = memento.getShift();
@@ -593,6 +603,7 @@ public class Model implements ColorTable {
         author = memento.getAuthor();
         organization = memento.getOrganization();
         notes = memento.getNotes();
+        lastReadingPos = memento.getLastReadingPos();
         fireModelChanged();
     }
 
@@ -702,6 +713,36 @@ public class Model implements ColorTable {
 
     public String getNotes() {
         return notes;
+    }
+
+    /**
+     * @return the colorNamesMap
+     */
+    public Map<Byte, String> getColorNamesMap() {
+        return colorNamesMap;
+    }
+
+    /**
+     * @param colorNamesMap
+     *            the colorNamesMap to set
+     */
+    public void setColorNamesMap(Map<Byte, String> colorNamesMap) {
+        this.colorNamesMap = colorNamesMap;
+    }
+
+    /**
+     * @return the lastReadingPos
+     */
+    public int getLastReadingPos() {
+        return lastReadingPos;
+    }
+
+    /**
+     * @param lastReadingPos
+     *            the lastReadingPos to set
+     */
+    public void setLastReadingPos(int lastReadingPos) {
+        this.lastReadingPos = lastReadingPos;
     }
 
 }

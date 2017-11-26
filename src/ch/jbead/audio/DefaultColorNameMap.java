@@ -30,7 +30,7 @@ public class DefaultColorNameMap {
     public static Map<Byte, String> create(Locale locale) {
 
         Map<Byte, String> map = new HashMap<>();
-        if(locale == Locale.GERMAN) {
+        if(locale.getLanguage().equals(Locale.GERMAN.getLanguage())) {
             map.put((byte) 0, "weiﬂ");
             map.put((byte) 1, "rotbraun");
             map.put((byte) 2, "hellrot");

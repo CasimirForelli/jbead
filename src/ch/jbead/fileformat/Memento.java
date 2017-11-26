@@ -20,7 +20,9 @@ package ch.jbead.fileformat;
 import java.awt.Color;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public abstract class Memento {
 
@@ -33,6 +35,7 @@ public abstract class Memento {
     protected int height;
     protected byte[] data;
 
+    protected Map<Byte, String> colorNames = new HashMap<>();
     protected List<Color> colors = new ArrayList<Color>();
     protected byte colorIndex;
     protected int zoomIndex;
@@ -223,6 +226,18 @@ public abstract class Memento {
      */
     public void setLastReadingPos(int lastReadingPos) {
         this.lastReadingPos = lastReadingPos;
+    }
+    /**
+     * @return the colorNames
+     */
+    public Map<Byte, String> getColorNames() {
+        return colorNames;
+    }
+    /**
+     * @param colorNames the colorNames to set
+     */
+    public void setColorNames(Map<Byte, String> colorNames) {
+        this.colorNames = colorNames;
     }
 
 }

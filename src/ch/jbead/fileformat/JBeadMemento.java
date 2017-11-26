@@ -20,9 +20,16 @@ package ch.jbead.fileformat;
 import java.awt.Color;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import ch.jbead.BeadSymbols;
+import ch.jbead.audio.DefaultColorNameMap;
+import ch.jbead.storage.JBeadFileFormatException;
 import ch.jbead.storage.Node;
 import ch.jbead.storage.ObjectModel;
 
@@ -35,6 +42,7 @@ public class JBeadMemento extends Memento {
         ObjectModel om = new ObjectModel("jbb");
         saveInfos(om);
         saveColors(om);
+        saveColorsNames(om);
         saveView(om);
         savePattern(om);
         out.write(om.toString());
@@ -45,12 +53,19 @@ public class JBeadMemento extends Memento {
         om.add("author", author);
         om.add("organization", organization);
         om.add("notes", notes);
-        om.add("lastReadingPosition", 512);
+        om.add("lastReadingPosition", lastReadingPos);
     }
 
     private void saveColors(ObjectModel om) {
-        for (Color color: colors) {
+        for (Color color : colors) {
             om.add("colors/rgb", color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
+        }
+    }
+
+    private void saveColorsNames(ObjectModel om) {
+        Set<Entry<Byte, String>> s = colorNames.entrySet();
+        for (Entry<Byte, String> entry : s) {
+            om.add("colorNames/entry", entry.getKey(), entry.getValue());
         }
     }
 
@@ -84,6 +99,7 @@ public class JBeadMemento extends Memento {
         ObjectModel om = ObjectModel.fromData(in.readAll());
         loadInfos(om);
         loadColors(om);
+        loadColorNames(om);
         loadView(om);
         loadPattern(om);
     }
@@ -97,6 +113,19 @@ public class JBeadMemento extends Memento {
         organization = (String) om.getStringValue("organization", "");
         notes = (String) om.getStringValue("notes", "");
         lastReadingPos = om.getIntValue("lastReadingPosition", 0);
+    }
+
+    private void loadColorNames(ObjectModel om) {
+        colorNames = DefaultColorNameMap.create(Locale.getDefault());
+        try {
+            for (Node colorName : om.getAll("colorNames/entry")) {
+                byte colorIdx = (byte) colorName.asLeaf().getIntValue(0);
+                String name = colorName.asLeaf().getStringValue(1);
+                colorNames.put(colorIdx, name);
+            }
+        } catch (JBeadFileFormatException ex) {
+            // Ignore missing entry
+        }
     }
 
     private void loadColors(ObjectModel om) {
@@ -133,8 +162,10 @@ public class JBeadMemento extends Memento {
             }
         }
     }
+
     private void upgrade(ObjectModel om, int version) {
-        // in the future, here will be conversion code that upgrades from earlier versions
+        // in the future, here will be conversion code that upgrades from earlier
+        // versions
     }
 
     private Color getColor(Node color) {

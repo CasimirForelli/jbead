@@ -136,9 +136,13 @@ public class TalkingManager {
      * @return
      */
     public boolean createAudioFile(String text) {
+        return createAudioFile(text, text);
+    }
+
+    public boolean createAudioFile(String fileName, String text) {
         boolean ok = false;
 
-        String outFilename = text + "_";
+        String outFilename = fileName + "_";
         String outFileFullpath = pathToSpeachFiles + System.getProperty("file.separator") + outFilename + "0." + fileType;
 
         File outFile = new File(outFileFullpath);
@@ -198,7 +202,7 @@ public class TalkingManager {
         // Create Message audio
         if (localization != null) {
             String msg = localization.getString("talkingdialog.pattern.end");
-            createAudioFile(msg);
+            createAudioFile("talkingdialog.pattern.end", msg);
         }
 
         // Create Color and number files

@@ -24,11 +24,11 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Locale;
 import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
+import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
@@ -39,7 +39,6 @@ import javax.swing.SwingConstants;
 import ch.jbead.BeadList;
 import ch.jbead.BeadRun;
 import ch.jbead.JBeadFrame;
-import ch.jbead.audio.DefaultColorNameMap;
 import ch.jbead.audio.TalkingManager;
 
 /**
@@ -54,6 +53,7 @@ public class TalkingDialog extends JDialog {
     private JButton btnBack = null;
     private JButton btnRepeat = null;
     private JButton btnExit = null;
+    private JButton btnSaveState = null;
 
     JPanel beadRunView = null;
 
@@ -80,7 +80,10 @@ public class TalkingDialog extends JDialog {
         if (frame.getModel().getRepeat() == 0) return;
 
         this.beadList = new BeadList(frame.getModel());
-        this.colorNameMap = DefaultColorNameMap.create(Locale.GERMAN);
+        this.colorNameMap = frame.getModel().getColorNamesMap();
+
+        this.currentBeadRunIdx = frame.getModel().getLastReadingPos();
+
         this.talkingManager = new TalkingManager();
 
         setTitle(frame.getString("talkingdialog.title"));
@@ -110,7 +113,6 @@ public class TalkingDialog extends JDialog {
 
         add(form, BorderLayout.PAGE_START);
 
-
         form = new JPanel();
         form.setLayout(new GridBagLayout());
 
@@ -121,11 +123,7 @@ public class TalkingDialog extends JDialog {
         beadRunView.add(createLabel("=> 0"));
         beadRunView.add(createLabel("  +1"));
         beadRunView.add(createLabel("  +2"));
-//        beadRunView.add(new JLabel("  -2"));
-//        beadRunView.add(new JLabel("  -1"));
-//        beadRunView.add(new JLabel("=> 0"));
-//        beadRunView.add(new JLabel("  +1"));
-//        beadRunView.add(new JLabel("  +2"));
+        drawBeadRunView();
 
         constraints = new GridBagConstraints();
         constraints.gridx = 0;
@@ -134,9 +132,10 @@ public class TalkingDialog extends JDialog {
 
         add(form, BorderLayout.CENTER);
 
-
         form = new JPanel();
         form.setLayout(new GridBagLayout());
+
+        btnSaveState = new JButton("Save");
 
         btnNext = new JButton("Weiter");
         getRootPane().setDefaultButton(btnNext);
@@ -180,7 +179,7 @@ public class TalkingDialog extends JDialog {
             public void actionPerformed(ActionEvent e) {
                 Thread thread1 = new Thread(new Runnable() {
                     @Override
-                    public void run(){
+                    public void run() {
                         talkingManager.createBeadListAudios(TalkingDialog.this.beadList, progressBar, TalkingDialog.this.colorNameMap, parentFrame);
                         btnNext.setEnabled(true);
                         btnRepeat.setEnabled(true);
@@ -191,21 +190,34 @@ public class TalkingDialog extends JDialog {
 
                 thread1.start();
 
-//                talkingManager.createBeadListAudios(TalkingDialog.this.beadList, progressBar, TalkingDialog.this.colorNameMap);
+                // talkingManager.createBeadListAudios(TalkingDialog.this.beadList, progressBar,
+                // TalkingDialog.this.colorNameMap);
             }
         });
 
         btnExit.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
+                parentFrame.getModel().setLastReadingPos(currentBeadRunIdx);
+                parentFrame.getModel().setModified();
+                parentFrame.fileSaveClick(parentFrame.getModel().isSaved(), parentFrame.getModel().getFile());
                 dispose();
             }
         });
+
+        btnSaveState.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                parentFrame.getModel().setLastReadingPos(currentBeadRunIdx);
+                parentFrame.getModel().setModified();
+                parentFrame.fileSaveClick(parentFrame.getModel().isSaved(), parentFrame.getModel().getFile());
+            }
+        });
+
 
         btnRepeat.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 Thread thread1 = new Thread(new Runnable() {
                     @Override
-                    public void run(){
+                    public void run() {
                         talkingManager.speak(currentBeadRun, colorNameMap);
                     }
                 });
@@ -223,7 +235,7 @@ public class TalkingDialog extends JDialog {
 
                 Thread thread1 = new Thread(new Runnable() {
                     @Override
-                    public void run(){
+                    public void run() {
                         talkingManager.speak(currentBeadRun, colorNameMap);
                     }
                 });
@@ -235,7 +247,7 @@ public class TalkingDialog extends JDialog {
         btnNext.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
 
-                if(currentBeadRunIdx == beadList.size()) {
+                if (currentBeadRunIdx+1 == beadList.size()) {
                     talkingManager.speakText("talkingdialog.pattern.end");
                     return;
                 }
@@ -246,7 +258,7 @@ public class TalkingDialog extends JDialog {
 
                 Thread thread1 = new Thread(new Runnable() {
                     @Override
-                    public void run(){
+                    public void run() {
                         talkingManager.speak(currentBeadRun, colorNameMap);
                     }
                 });
@@ -264,7 +276,7 @@ public class TalkingDialog extends JDialog {
      */
     private Component createLabel(String text) {
         JLabel lbl = new JLabel(text);
-        lbl.setHorizontalAlignment(SwingConstants.TRAILING );
+        lbl.setHorizontalAlignment(SwingConstants.TRAILING);
         lbl.setBackground(Color.WHITE);
         return lbl;
     }
@@ -283,11 +295,11 @@ public class TalkingDialog extends JDialog {
                 BeadRun br = beadList.get(idx);
                 String prefix = "    ";
                 if (y == 2) prefix = " => ";
-                lbl.setText(idx + "." + prefix + colorNameMap.get(br.getColor())+ " " + br.getCount() + "x");
+                lbl.setText(idx + "." + prefix + colorNameMap.get(br.getColor()) + " " + br.getCount() + "x");
             }
         }
-
-        btnNext.requestFocusInWindow();
+        if(btnNext!=null)
+            btnNext.requestFocusInWindow();
 
     }
 
