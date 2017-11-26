@@ -31,6 +31,7 @@ import javax.swing.JProgressBar;
 
 import ch.jbead.BeadList;
 import ch.jbead.BeadRun;
+import ch.jbead.Localization;
 import ch.jbead.Settings;
 
 /**
@@ -40,21 +41,24 @@ public class TalkingManager {
 
     public static final String DEFAULT_PATH_TO_TTS = "%HOME%\\tts\\tts.exe";
 
-    public  static final String DEFAULT_TTS_PARAMS = "-f 3 -v 0 -o <out> <text>";
+    public static final String DEFAULT_TTS_PARAMS = "-f 3 -v 0 -o <out> <text>";
 
-    public  static final String DEFAULT_FILE_TYPE = "wav";
+    public static final String DEFAULT_FILE_TYPE = "wav";
 
-    public  static final String DEFAULT_PATH_TO_SPEACH_FILES = "%TMP%\\jbead_audio_cache";;
+    public static final String DEFAULT_PATH_TO_SPEACH_FILES = "%TMP%\\jbead_audio_cache";;
 
     private String pathToTts;
     private String pathToSpeachFiles;
     private String ttsParams;
     private String fileType;
-//    private String ttsParams = "-f 3 -v 0 -t -o <out> <text>";
-//    private String fileType = "mp3";
+    // private String ttsParams = "-f 3 -v 0 -t -o <out> <text>";
+    // private String fileType = "mp3";
 
+    private AudioFilePlayer player;
 
     public TalkingManager() {
+        player = new AudioFilePlayer();
+
         final Settings settings = new Settings();
         settings.setCategory("audio");
 
@@ -62,30 +66,32 @@ public class TalkingManager {
         ttsParams = settings.loadString("ttsParams", DEFAULT_TTS_PARAMS);
         fileType = settings.loadString("fileType", DEFAULT_FILE_TYPE);
         pathToSpeachFiles = resolvePath(settings.loadString("pathToSpeachFiles", DEFAULT_PATH_TO_SPEACH_FILES));
-        int i = 1+1;
     }
 
     /**
- * @param loadString
- * @return
- */
-private String resolvePath(String inPath) {
-    String finalPath = "";
-    if(inPath.contains("%TMP%")) {
-        String tmpDir = System.getenv("TMP");
-        finalPath = inPath.replace("%TMP%", tmpDir);
-    }
-    if(inPath.contains("%HOME%")) {
-        String homeDir = "";
-        if(System.getProperty("os.name").contains("indows")) {
-            homeDir = System.getenv("HOMEDRIVE") + System.getenv("HOMEPATH") ;
-        } else {
-            homeDir = System.getenv("HOME");
+     * @param loadString
+     * @return
+     */
+    private String resolvePath(String inPath) {
+        String finalPath = "";
+        if (inPath.contains("%TMP%")) {
+            String tmpDir = System.getenv("TMP");
+            finalPath = inPath.replace("%TMP%", tmpDir);
         }
-        finalPath = inPath.replace("%HOME%", homeDir);
+        if (inPath.contains("%HOME%")) {
+            String homeDir = "";
+            if (System.getProperty("os.name").contains("indows")) {
+                homeDir = System.getenv("HOMEDRIVE") + System.getenv("HOMEPATH");
+            } else {
+                homeDir = System.getenv("HOME");
+            }
+            finalPath = inPath.replace("%HOME%", homeDir);
+        }
+        if (!finalPath.endsWith(System.getProperty("file.separator"))) {
+            finalPath = finalPath + System.getProperty("file.separator");
+        }
+        return finalPath;
     }
-    return finalPath;
-}
 
     /**
      *
@@ -94,7 +100,7 @@ private String resolvePath(String inPath) {
     private boolean prepareCache() {
         boolean ok = false;
         File cacheDir = new File(pathToSpeachFiles);
-        if(!cacheDir.exists()) {
+        if (!cacheDir.exists()) {
             ok = cacheDir.mkdirs();
         }
         return ok;
@@ -106,17 +112,17 @@ private String resolvePath(String inPath) {
     public void clearCache() {
 
         File cacheDir = new File(pathToSpeachFiles);
-        if(!cacheDir.exists()) {
+        if (!cacheDir.exists()) {
             prepareCache();
             return;
         }
         FilenameFilter filter = new FilenameFilter() {
             @Override
             public boolean accept(File dir, String name) {
-                return name.toLowerCase().endsWith("."+fileType);
+                return name.toLowerCase().endsWith("." + fileType);
             }
         };
-        File[] audioFiles = cacheDir.listFiles(filter );
+        File[] audioFiles = cacheDir.listFiles(filter);
         for (int i = 0; i < audioFiles.length; i++) {
             File file = audioFiles[i];
             file.delete();
@@ -133,23 +139,20 @@ private String resolvePath(String inPath) {
         boolean ok = false;
 
         String outFilename = text + "_";
-        String outFileFullpath = pathToSpeachFiles + System.getProperty("file.separator") + outFilename+"0."+fileType;
+        String outFileFullpath = pathToSpeachFiles + System.getProperty("file.separator") + outFilename + "0." + fileType;
 
         File outFile = new File(outFileFullpath);
-        if(outFile.exists()) {
+        if (outFile.exists()) {
             return true;
         }
 
-
         String params = ttsParams.replace("<out>", outFilename);
         params = params.replace("<text>", text);
-
 
         String pa[] = params.split(" ");
         List<String> pList = new ArrayList<>();
         pList.add(pathToTts);
         pList.addAll(Arrays.asList(pa));
-
 
         File workingDir = new File(pathToSpeachFiles);
         prepareCache();
@@ -157,11 +160,11 @@ private String resolvePath(String inPath) {
         ProcessBuilder pb = new ProcessBuilder(pList);
         pb.directory(workingDir);
         try {
-            Process p =  pb.start();
+            Process p = pb.start();
 
-            //TODO improve by using a timeout
+            // TODO improve by using a timeout
             int exitCode = p.waitFor();
-            if(exitCode==0) {
+            if (exitCode == 0) {
                 ok = true;
             }
 
@@ -182,25 +185,32 @@ private String resolvePath(String inPath) {
      * @param bar
      * @param colorNameMap
      */
-    public void createBeadListAudios(BeadList list, JProgressBar bar, Map<Byte, String> colorNameMap) {
+    public void createBeadListAudios(BeadList list, JProgressBar bar, Map<Byte, String> colorNameMap, Localization localization) {
 
         Set<Integer> numberSet = new TreeSet<Integer>();
         Set<Byte> colorSet = new TreeSet<Byte>();
 
-        if(bar!=null) {
+        if (bar != null) {
             bar.setMinimum(0);
             bar.setMaximum(list.size());
             bar.setValue(0);
         }
-        int idx=0;
+        // Create Message audio
+        if (localization != null) {
+            String msg = localization.getString("talkingdialog.pattern.end");
+            createAudioFile(msg);
+        }
+
+        // Create Color and number files
+        int idx = 0;
         for (BeadRun beadRun : list) {
-            if(bar!=null)bar.setValue(++idx);
+            if (bar != null) bar.setValue(++idx);
 
             // create number file
             int number = beadRun.getCount();
-            if(!numberSet.contains(number)) {
+            if (!numberSet.contains(number)) {
                 String numberAsText = Integer.toString(number);
-                if(createAudioFile(numberAsText)) {
+                if (createAudioFile(numberAsText)) {
                     numberSet.add(number);
                 } else {
                     throw new RuntimeException("Error creating number audio file");
@@ -209,9 +219,9 @@ private String resolvePath(String inPath) {
 
             // create color file
             byte color = beadRun.getColor();
-            if(!colorSet.contains(color)) {
+            if (!colorSet.contains(color)) {
                 String colorAsText = colorNameMap.get(color);
-                if(createAudioFile(colorAsText)) {
+                if (createAudioFile(colorAsText)) {
                     colorSet.add(color);
                 } else {
                     throw new RuntimeException("Error creating color audio file");
@@ -220,15 +230,34 @@ private String resolvePath(String inPath) {
 
         }
 
-
     }
 
     /**
      *
      * @param beadRun
      */
-    public void speak(BeadRun beadRun) {
+    public void speak(BeadRun beadRun, Map<Byte, String> colorNameMap) {
 
+        String numberFile = pathToSpeachFiles + beadRun.getCount() + "_0." + fileType;
+        String colorName = colorNameMap.get(beadRun.getColor());
+        String colorFile = pathToSpeachFiles + colorName + "_0." + fileType;
+
+        System.out.println("Speaking: " + colorFile);
+        player.play(colorFile);
+        System.out.println("Speaking: " + numberFile);
+        player.play(numberFile);
+
+        return;
+    }
+
+    /**
+     * @param textKey
+     */
+    public void speakText(String textKey) {
+        String textSpeachFile = pathToSpeachFiles + textKey + "_0." + fileType;
+
+        System.out.println("Speaking: " + textSpeachFile);
+        player.play(textSpeachFile);
 
     }
 

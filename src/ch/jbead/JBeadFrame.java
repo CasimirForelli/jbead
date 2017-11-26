@@ -17,7 +17,6 @@
 
 package ch.jbead;
 
-
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -45,6 +44,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.Timer;
@@ -63,6 +63,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
@@ -90,6 +91,7 @@ import ch.jbead.action.InfoTechInfosAction;
 import ch.jbead.action.InfoUpdateCheckAction;
 import ch.jbead.action.PatternHeightAction;
 import ch.jbead.action.PatternPreferencesAction;
+import ch.jbead.action.PatternTalkingAction;
 import ch.jbead.action.PatternWidthAction;
 import ch.jbead.action.ToolFillAction;
 import ch.jbead.action.ToolPencilAction;
@@ -221,6 +223,7 @@ public class JBeadFrame extends JFrame implements Localization, View, ModelListe
             public void componentResized(ComponentEvent e) {
                 persistScreenBounds();
             }
+
             @Override
             public void componentMoved(ComponentEvent e) {
                 persistScreenBounds();
@@ -416,11 +419,22 @@ public class JBeadFrame extends JFrame implements Localization, View, ModelListe
     }
 
     public String getString(String key) {
-        return getBundle().getString(key);
+        try {
+            String s = getBundle().getString(key);
+            return s;
+        } catch (MissingResourceException e) {
+            return key;
+        }
     }
 
     public int getMnemonic(String key) {
-        return getBundle().getString(key).charAt(0);
+        try {
+            int c = getBundle().getString(key).charAt(0);
+            return c;
+        } catch (MissingResourceException e) {
+            return 0;
+        }
+
     }
 
     public KeyStroke getKeyStroke(String key) {
@@ -528,6 +542,8 @@ public class JBeadFrame extends JFrame implements Localization, View, ModelListe
         if (!Platform.isMacOSX()) {
             menuPattern.add(preferencesAction);
         }
+        menuPattern.add(new JSeparator());
+        menuPattern.add(new PatternTalkingAction(this));
         return menuPattern;
     }
 
@@ -621,9 +637,9 @@ public class JBeadFrame extends JFrame implements Localization, View, ModelListe
         c.fill = GridBagConstraints.BOTH;
 
         // remember original Dimension
-        Dimension d= report.getPreferredSize();
+        Dimension d = report.getPreferredSize();
         int h = (int) d.getHeight();
-//        report.setPreferredSize(new Dimension(6000, h));
+        // report.setPreferredSize(new Dimension(6000, h));
         JScrollPane scrollFrame = new JScrollPane(report);
         report.setAutoscrolls(true);
         // set scrollframe size to original dimension

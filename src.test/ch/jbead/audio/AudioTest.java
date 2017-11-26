@@ -70,7 +70,7 @@ public class AudioTest extends TestCase implements Localization {
         long start = System.currentTimeMillis();
         TalkingManager m = new TalkingManager();
 //        m.clearCache();
-        m.createBeadListAudios(beadList, null, colorNameMap);
+        m.createBeadListAudios(beadList, null, colorNameMap, null);
         System.out.println("Fertig nach "+ (System.currentTimeMillis()-start) + " ms");
 
     }
