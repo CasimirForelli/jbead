@@ -27,6 +27,7 @@ public abstract class Memento {
     protected String author = "";
     protected String organization = "";
     protected String notes = "";
+    protected int lastReadingPos = 0;
 
     protected int width;
     protected int height;
@@ -210,6 +211,18 @@ public abstract class Memento {
 
     public void setSelectedTool(String selectedTool) {
         this.selectedTool = selectedTool;
+    }
+    /**
+     * @return the lastReadingPos
+     */
+    public int getLastReadingPos() {
+        return lastReadingPos;
+    }
+    /**
+     * @param lastReadingPos the lastReadingPos to set
+     */
+    public void setLastReadingPos(int lastReadingPos) {
+        this.lastReadingPos = lastReadingPos;
     }
 
 }

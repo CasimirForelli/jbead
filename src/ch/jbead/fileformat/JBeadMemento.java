@@ -45,6 +45,7 @@ public class JBeadMemento extends Memento {
         om.add("author", author);
         om.add("organization", organization);
         om.add("notes", notes);
+        om.add("lastReadingPosition", 512);
     }
 
     private void saveColors(ObjectModel om) {
@@ -95,6 +96,7 @@ public class JBeadMemento extends Memento {
         author = (String) om.getStringValue("author", "");
         organization = (String) om.getStringValue("organization", "");
         notes = (String) om.getStringValue("notes", "");
+        lastReadingPos = om.getIntValue("lastReadingPosition", 0);
     }
 
     private void loadColors(ObjectModel om) {
