@@ -29,7 +29,7 @@ public abstract class Memento {
     protected String author = "";
     protected String organization = "";
     protected String notes = "";
-    protected int lastReadingPos = 0;
+    protected int lastReadingPos = -1;
 
     protected int width;
     protected int height;

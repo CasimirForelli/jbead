@@ -112,7 +112,7 @@ public class JBeadMemento extends Memento {
         author = (String) om.getStringValue("author", "");
         organization = (String) om.getStringValue("organization", "");
         notes = (String) om.getStringValue("notes", "");
-        lastReadingPos = om.getIntValue("lastReadingPosition", 0);
+        lastReadingPos = om.getIntValue("lastReadingPosition", -1);
     }
 
     private void loadColorNames(ObjectModel om) {

@@ -54,6 +54,7 @@ public class TalkingDialog extends JDialog {
     private JButton btnRepeat = null;
     private JButton btnExit = null;
     private JButton btnSaveState = null;
+    private JButton btnRestart = null;
 
     JPanel beadRunView = null;
 
@@ -163,9 +164,16 @@ public class TalkingDialog extends JDialog {
         constraints.gridy = 1;
         form.add(btnExit, constraints);
 
+        btnRestart = new JButton("Neustart");
+        constraints = new GridBagConstraints();
+        constraints.gridx = 1;
+        constraints.gridy = 2;
+        form.add(btnRestart, constraints);
+
         btnNext.setEnabled(false);
         btnRepeat.setEnabled(false);
         btnBack.setEnabled(false);
+        btnRestart.setEnabled(false);
         btnStart.setEnabled(true);
 
         add(form, BorderLayout.PAGE_END);
@@ -184,6 +192,7 @@ public class TalkingDialog extends JDialog {
                         btnNext.setEnabled(true);
                         btnRepeat.setEnabled(true);
                         btnBack.setEnabled(true);
+                        btnRestart.setEnabled(true);
                         btnStart.setEnabled(false);
                     }
                 });
@@ -229,6 +238,9 @@ public class TalkingDialog extends JDialog {
         btnBack.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
 
+                if(currentBeadRunIdx<=0) {
+                    return;
+                }
                 currentBeadRunIdx--;
                 currentBeadRun = beadList.get(currentBeadRunIdx);
                 drawBeadRunView();
@@ -240,6 +252,17 @@ public class TalkingDialog extends JDialog {
                     }
                 });
                 thread1.start();
+            }
+
+        });
+
+        btnRestart.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+
+                currentBeadRunIdx=-1;
+                currentBeadRun = null;
+                drawBeadRunView();
+
             }
 
         });
