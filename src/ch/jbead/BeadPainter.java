@@ -49,21 +49,28 @@ public class BeadPainter {
         this.drawBorder = drawBorder;
     }
 
-    public void paint(Graphics g, Point pt, byte c) {
-        Color color = model.getColor(c);
+    public void paint(Graphics g, Point pt, Byte c) {
+        Color color = null;
+        if(c!=null) {
+            color = model.getColor(c);
+        } else {
+            drawBorder = true;
+        }
         int x = coord.x(pt);
         int y = coord.y(pt);
         int gridx = coord.getGridx();
         int gridy = coord.getGridy();
         int dx = coord.dx(pt);
-        if (view.drawColors() || forceColors) {
-            g.setColor(color);
-            g.fillRect(x - dx, y, gridx, gridy);
-        }
-        if (view.drawSymbols()) {
-            setSymbolColor(g, color);
-            g.setFont(symbolfont);
-            g.drawString(BeadSymbols.get(c), x + (gridx - g.getFontMetrics().stringWidth(BeadSymbols.get(c))) / 2 - dx, y + symbolfont.getSize());
+        if(c!=null) {
+            if (view.drawColors() || forceColors) {
+                g.setColor(color);
+                g.fillRect(x - dx, y, gridx, gridy);
+            }
+            if (view.drawSymbols()) {
+                setSymbolColor(g, color);
+                g.setFont(symbolfont);
+                g.drawString(BeadSymbols.get(c), x + (gridx - g.getFontMetrics().stringWidth(BeadSymbols.get(c))) / 2 - dx, y + symbolfont.getSize());
+            }
         }
         if (drawBorder) {
             g.setColor(Color.BLACK);

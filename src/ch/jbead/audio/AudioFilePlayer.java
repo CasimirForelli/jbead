@@ -16,6 +16,8 @@ import static javax.sound.sampled.AudioFormat.Encoding.PCM_SIGNED;
 
 /**
  * AudioFilePlayer.
+ * Copyright (C) 2017  Casimir Forelli.
+ *
  * Based on sample code taken from "Oliver Doepner's IT Blog"
  *
  * @see https://odoepner.wordpress.com/2013/07/19/play-mp3-or-ogg-using-javax-sound-sampled-mp3spi-vorbisspi/

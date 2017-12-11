@@ -1,5 +1,5 @@
 /** jbead - http://www.jbead.ch
-    Copyright (C) 2001-2012  Damian Brunold
+    Copyright (C) 2017  Casimir Forelli
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by

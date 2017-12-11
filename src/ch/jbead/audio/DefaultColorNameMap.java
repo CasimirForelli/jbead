@@ -1,5 +1,5 @@
 /** jbead - http://www.jbead.ch
-    Copyright (C) 2001-2017  Damian Brunold
+    Copyright (C) 2017  Casimir Forelli
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -38,7 +38,7 @@ public class DefaultColorNameMap {
             map.put((byte) 4, "mittelrot");
             map.put((byte) 5, "orange");
             map.put((byte) 6, "gelb");
-            map.put((byte) 7, "zitrone");
+            map.put((byte) 7, "gelb");
             map.put((byte) 8, "hellgelb");
             map.put((byte) 9, "dunkelbraun");
             map.put((byte) 10, "hellbraun");
@@ -71,7 +71,7 @@ public class DefaultColorNameMap {
             map.put((byte) 4, "red");
             map.put((byte) 5, "orange");
             map.put((byte) 6, "yellow");
-            map.put((byte) 7, "citron");
+            map.put((byte) 7, "yellow");
             map.put((byte) 8, "light yellow");
             map.put((byte) 9, "dark brown");
             map.put((byte) 10, "light brown");

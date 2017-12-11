@@ -1,5 +1,5 @@
 /** jbead - http://www.jbead.ch
-    Copyright (C) 2001-2017  Damian Brunold
+    Copyright (C) 2017  Casimir Forelli
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -14,7 +14,6 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-
 package ch.jbead.audio;
 
 import java.io.File;
@@ -191,44 +190,38 @@ public class TalkingManager {
      */
     public void createBeadListAudios(BeadList list, JProgressBar bar, Map<Byte, String> colorNameMap, Localization localization) {
 
-        Set<Integer> numberSet = new TreeSet<Integer>();
-        Set<Byte> colorSet = new TreeSet<Byte>();
+        Set<String> colorNumberSet = new TreeSet<String>();
 
         if (bar != null) {
             bar.setMinimum(0);
-            bar.setMaximum(list.size());
+            bar.setMaximum(list.size()+1);
             bar.setValue(0);
         }
+        int idx = 0;
         // Create Message audio
         if (localization != null) {
             String msg = localization.getString("talkingdialog.pattern.end");
             createAudioFile("talkingdialog.pattern.end", msg);
+            if (bar != null) bar.setValue(++idx);
         }
 
         // Create Color and number files
-        int idx = 0;
         for (BeadRun beadRun : list) {
             if (bar != null) bar.setValue(++idx);
 
-            // create number file
             int number = beadRun.getCount();
-            if (!numberSet.contains(number)) {
-                String numberAsText = Integer.toString(number);
-                if (createAudioFile(numberAsText)) {
-                    numberSet.add(number);
-                } else {
-                    throw new RuntimeException("Error creating number audio file");
-                }
-            }
+            String numberAsText = Integer.toString(number);
 
-            // create color file
             byte color = beadRun.getColor();
-            if (!colorSet.contains(color)) {
-                String colorAsText = colorNameMap.get(color);
-                if (createAudioFile(colorAsText)) {
-                    colorSet.add(color);
+            String colorAsText = colorNameMap.get(color);
+
+            // create color_number file
+            String colorNumber = colorAsText + ":" + numberAsText;
+            if (!colorNumberSet.contains(colorNumber)) {
+                if (createAudioFile(colorNumber.replace(":", "_"), colorNumber)) {
+                    colorNumberSet.add(colorNumber);
                 } else {
-                    throw new RuntimeException("Error creating color audio file");
+                    throw new RuntimeException("Error creating color_number audio file");
                 }
             }
 
@@ -240,7 +233,7 @@ public class TalkingManager {
      *
      * @param beadRun
      */
-    public void speak(BeadRun beadRun, Map<Byte, String> colorNameMap) {
+    public void speak2(BeadRun beadRun, Map<Byte, String> colorNameMap) {
 
         String numberFile = pathToSpeachFiles + beadRun.getCount() + "_0." + fileType;
         String colorName = colorNameMap.get(beadRun.getColor());
@@ -254,6 +247,20 @@ public class TalkingManager {
         return;
     }
 
+    /**
+    *
+    * @param beadRun
+    */
+   public void speak(BeadRun beadRun, Map<Byte, String> colorNameMap) {
+
+       String colorName = colorNameMap.get(beadRun.getColor());
+       String colorNumberFile = pathToSpeachFiles + colorName+ "_" + beadRun.getCount() + "_0." + fileType;
+
+       System.out.println("Speaking: " + colorNumberFile);
+       player.play(colorNumberFile);
+
+       return;
+   }
     /**
      * @param textKey
      */
