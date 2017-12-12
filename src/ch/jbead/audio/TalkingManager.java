@@ -200,7 +200,7 @@ public class TalkingManager {
         int idx = 0;
         // Create Message audio
         if (localization != null) {
-            String msg = localization.getString("talkingdialog.pattern.end");
+            String msg = "\"" + localization.getString("talkingdialog.pattern.end") + "\"";
             createAudioFile("talkingdialog.pattern.end", msg);
             if (bar != null) bar.setValue(++idx);
         }

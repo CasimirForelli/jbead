@@ -81,7 +81,7 @@ public class BeadRunViewPanel extends JPanel {
         for (int i = 0; i <= 4; i++) {
 
             int idx = currentBeadRunIdx - 2 + i;
-            if (idx < 0) {
+            if (idx < 0 || idx >= beadList.size()) {
                 drawBeadCount(g, x1, y, dx, dy, height, null, 0, painter, coord);
             } else {
                 BeadRun bead = beadList.get(idx);
