@@ -58,7 +58,7 @@
                 <exclude name="**/*.java" />
             </fileset>
         </copy>
-        <javac srcdir="src.dummymac" destdir="build/classes.dummymac" source="5" target="5" debug="true" debuglevel="source,lines,vars" includeantruntime="false" />
+        <javac srcdir="src.dummymac" destdir="build/classes.dummymac" source="8" target="8" debug="true" debuglevel="source,lines,vars" includeantruntime="false" />
     </target>
 
 	<target name="compile_src">
@@ -68,7 +68,7 @@
 				<exclude name="**/*.java" />
 			</fileset>
 		</copy>
-		<javac srcdir="src" destdir="build/classes" source="5" target="5" debug="true" debuglevel="source,lines,vars" includeantruntime="false">
+		<javac srcdir="src" destdir="build/classes" source="8" target="8" debug="true" debuglevel="source,lines,vars" includeantruntime="false">
             <classpath>
                 <pathelement path="build/classes.dummymac" />
             </classpath>
@@ -82,7 +82,7 @@
 				<exclude name="**/*.java" />
 			</fileset>
 		</copy>
-		<javac srcdir="src.test" destdir="build/classes.test" source="5" target="5" debug="true" debuglevel="source,lines,vars" includeantruntime="false">
+		<javac srcdir="src.test" destdir="build/classes.test" source="8" target="8" debug="true" debuglevel="source,lines,vars" includeantruntime="false">
 			<classpath>
 				<pathelement path="build/classes" />
 				<pathelement path="lib/junit.jar" />
