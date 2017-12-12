@@ -69,6 +69,7 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileFilter;
 
+import ch.jbead.action.ColornameMapAction;
 import ch.jbead.action.EditArrangeAction;
 import ch.jbead.action.EditDeleteAction;
 import ch.jbead.action.EditDeleteRowAction;
@@ -544,6 +545,7 @@ public class JBeadFrame extends JFrame implements Localization, View, ModelListe
         }
         menuPattern.add(new JSeparator());
         menuPattern.add(new PatternTalkingAction(this));
+        menuPattern.add(new ColornameMapAction(this));
         return menuPattern;
     }
 

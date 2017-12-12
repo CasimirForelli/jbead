@@ -20,24 +20,25 @@ package ch.jbead.action;
 import java.awt.event.ActionEvent;
 
 import ch.jbead.JBeadFrame;
+import ch.jbead.dialog.ColornameMapDialog;
 import ch.jbead.dialog.PatternHeightDialog;
 import ch.jbead.dialog.TalkingDialog;
 
-public class PatternTalkingAction extends BaseAction {
+public class ColornameMapAction extends BaseAction {
 
     private static final long serialVersionUID = 1L;
 
-    private static final String NAME = "pattern.talk";
+    private static final String NAME = "pattern.colornamemap";
 
-    public PatternTalkingAction(JBeadFrame frame) {
+    public ColornameMapAction(JBeadFrame frame) {
         super(NAME, frame);
-        putValue(SHORT_DESCRIPTION, localization.getString("action.pattern.talk.description"));
-        putValue(MNEMONIC_KEY, localization.getMnemonic("action.pattern.talk.mnemonic"));
+        putValue(SHORT_DESCRIPTION, localization.getString("action.pattern.colornamemap.description"));
+        putValue(MNEMONIC_KEY, localization.getMnemonic("action.pattern.colornamemap.mnemonic"));
     }
 
     public void actionPerformed(ActionEvent e) {
 
-        TalkingDialog dialog = new TalkingDialog(frame);
+        ColornameMapDialog dialog = new ColornameMapDialog(frame);
 
         dialog.setVisible(true);
 

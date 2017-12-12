@@ -36,6 +36,7 @@ import ch.jbead.BeadList;
 import ch.jbead.BeadRun;
 import ch.jbead.JBeadFrame;
 import ch.jbead.audio.TalkingManager;
+import ch.jbead.view.BeadRunViewPanel;
 
 /**
  *
