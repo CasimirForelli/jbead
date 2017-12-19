@@ -23,14 +23,17 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.UIManager;
 
 import ch.jbead.BeadSymbols;
 import ch.jbead.Localization;
@@ -47,14 +50,13 @@ public class PreferencesDialog extends JDialog {
     private JTextField symbols;
     private JCheckBox disablestartcheck;
     private JTextField defaultFilePath;
+    private JButton choosePathButton;
 
-    //Audio setting fields
-    private JTextField pathToTts; //"%USERHOME%\\tts\\tts.exe";
-    private JTextField ttsParams; //"-f 3 -v 0 -o <out> <text>";
-    private JTextField fileType; //  "wav";
+    // Audio setting fields
+    private JTextField pathToTts; // "%USERHOME%\\tts\\tts.exe";
+    private JTextField ttsParams; // "-f 3 -v 0 -o <out> <text>";
+    private JTextField fileType; // "wav";
     private JTextField pathToSpeachFiles; // "%TMP%\\jbead_audio_cache";
-
-
 
     public PreferencesDialog(Localization localization, final Model model, final View view) {
         setTitle(localization.getString("preferences.title"));
@@ -110,6 +112,12 @@ public class PreferencesDialog extends JDialog {
         constraints.fill = GridBagConstraints.HORIZONTAL;
         form.add(defaultFilePath = new JTextField(settings.loadString("defaultFilePath")), constraints);
         defaultFilePath.setColumns(20);
+
+        constraints = new GridBagConstraints();
+        constraints.gridx = 2;
+        constraints.gridy = 2;
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        form.add(choosePathButton = new JButton(UIManager.getIcon("Tree.openIcon")), constraints);
 
         settings.setCategory("view");
 
@@ -181,7 +189,8 @@ public class PreferencesDialog extends JDialog {
         constraints.gridx = 1;
         constraints.gridy = 7;
         constraints.fill = GridBagConstraints.HORIZONTAL;
-        form.add(pathToSpeachFiles = new JTextField(settings.loadString("pathToSpeachFiles", TalkingManager.DEFAULT_PATH_TO_SPEACH_FILES)), constraints);
+        form.add(pathToSpeachFiles = new JTextField(settings.loadString("pathToSpeachFiles", TalkingManager.DEFAULT_PATH_TO_SPEACH_FILES)),
+                constraints);
         pathToSpeachFiles.setColumns(30);
 
         add(form, BorderLayout.CENTER);
@@ -198,6 +207,26 @@ public class PreferencesDialog extends JDialog {
         pack();
         setLocationRelativeTo(null);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+
+        choosePathButton.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JFileChooser fc = new JFileChooser();
+                String path = defaultFilePath.getText();
+                File pathFile = new File(path);
+                fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+                if(pathFile.exists()) {
+                    fc.setCurrentDirectory(pathFile);
+                }
+                int returnVal = fc.showOpenDialog(PreferencesDialog.this);
+                if (returnVal == JFileChooser.APPROVE_OPTION) {
+                    path = fc.getSelectedFile().getAbsolutePath();
+                    defaultFilePath.setText(path);
+                }
+            }
+        });
+
         ok.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 settings.setCategory("user");
