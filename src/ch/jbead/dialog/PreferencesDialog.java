@@ -46,6 +46,7 @@ public class PreferencesDialog extends JDialog {
     private JTextField organization;
     private JTextField symbols;
     private JCheckBox disablestartcheck;
+    private JTextField defaultFilePath;
 
     //Audio setting fields
     private JTextField pathToTts; //"%USERHOME%\\tts\\tts.exe";
@@ -96,18 +97,32 @@ public class PreferencesDialog extends JDialog {
         form.add(organization = new JTextField(settings.loadString("organization")), constraints);
         organization.setColumns(20);
 
+        constraints = new GridBagConstraints();
+        constraints.gridx = 0;
+        constraints.gridy = 2;
+        constraints.ipadx = 3;
+        constraints.anchor = GridBagConstraints.WEST;
+        form.add(new JLabel(localization.getString("preferences.defaultFilePath")), constraints);
+
+        constraints = new GridBagConstraints();
+        constraints.gridx = 1;
+        constraints.gridy = 2;
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        form.add(defaultFilePath = new JTextField(settings.loadString("defaultFilePath")), constraints);
+        defaultFilePath.setColumns(20);
+
         settings.setCategory("view");
 
         constraints = new GridBagConstraints();
         constraints.gridx = 0;
-        constraints.gridy = 2;
+        constraints.gridy = 3;
         constraints.ipadx = 3;
         constraints.anchor = GridBagConstraints.WEST;
         form.add(new JLabel(localization.getString("preferences.symbols")), constraints);
 
         constraints = new GridBagConstraints();
         constraints.gridx = 1;
-        constraints.gridy = 2;
+        constraints.gridy = 3;
         constraints.fill = GridBagConstraints.HORIZONTAL;
         form.add(symbols = new JTextField(settings.loadString("symbols", BeadSymbols.SYMBOLS)), constraints);
         symbols.setColumns(33);
@@ -116,7 +131,7 @@ public class PreferencesDialog extends JDialog {
 
         constraints = new GridBagConstraints();
         constraints.gridx = 0;
-        constraints.gridy = 3;
+        constraints.gridy = 4;
         constraints.gridwidth = 2;
         constraints.anchor = GridBagConstraints.WEST;
         form.add(disablestartcheck = new JCheckBox(localization.getString("preferences.disablestartcheck")), constraints);
@@ -127,14 +142,14 @@ public class PreferencesDialog extends JDialog {
         // PathToTTS
         constraints = new GridBagConstraints();
         constraints.gridx = 0;
-        constraints.gridy = 4;
+        constraints.gridy = 5;
         constraints.ipadx = 3;
         constraints.anchor = GridBagConstraints.WEST;
         form.add(new JLabel(localization.getString("preferences.pathToTts")), constraints);
 
         constraints = new GridBagConstraints();
         constraints.gridx = 1;
-        constraints.gridy = 4;
+        constraints.gridy = 5;
         constraints.fill = GridBagConstraints.HORIZONTAL;
         form.add(pathToTts = new JTextField(settings.loadString("pathToTts", TalkingManager.DEFAULT_PATH_TO_TTS)), constraints);
         pathToTts.setColumns(30);
@@ -142,14 +157,14 @@ public class PreferencesDialog extends JDialog {
         // ttsParams
         constraints = new GridBagConstraints();
         constraints.gridx = 0;
-        constraints.gridy = 5;
+        constraints.gridy = 6;
         constraints.ipadx = 3;
         constraints.anchor = GridBagConstraints.WEST;
         form.add(new JLabel(localization.getString("preferences.ttsParams")), constraints);
 
         constraints = new GridBagConstraints();
         constraints.gridx = 1;
-        constraints.gridy = 5;
+        constraints.gridy = 6;
         constraints.fill = GridBagConstraints.HORIZONTAL;
         form.add(ttsParams = new JTextField(settings.loadString("ttsParams", TalkingManager.DEFAULT_TTS_PARAMS)), constraints);
         ttsParams.setColumns(30);
@@ -157,14 +172,14 @@ public class PreferencesDialog extends JDialog {
         // pathToSpeachFiles
         constraints = new GridBagConstraints();
         constraints.gridx = 0;
-        constraints.gridy = 6;
+        constraints.gridy = 7;
         constraints.ipadx = 3;
         constraints.anchor = GridBagConstraints.WEST;
         form.add(new JLabel(localization.getString("preferences.pathToSpeachFiles")), constraints);
 
         constraints = new GridBagConstraints();
         constraints.gridx = 1;
-        constraints.gridy = 6;
+        constraints.gridy = 7;
         constraints.fill = GridBagConstraints.HORIZONTAL;
         form.add(pathToSpeachFiles = new JTextField(settings.loadString("pathToSpeachFiles", TalkingManager.DEFAULT_PATH_TO_SPEACH_FILES)), constraints);
         pathToSpeachFiles.setColumns(30);
@@ -188,6 +203,7 @@ public class PreferencesDialog extends JDialog {
                 settings.setCategory("user");
                 settings.saveString("author", author.getText());
                 settings.saveString("organization", organization.getText());
+                settings.saveString("defaultFilePath", defaultFilePath.getText());
                 settings.setCategory("view");
                 if (symbols.getText().length() == 0) {
                     settings.remove("symbols");

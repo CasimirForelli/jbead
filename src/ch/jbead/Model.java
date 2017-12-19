@@ -306,12 +306,22 @@ public class Model implements ColorTable {
             return file.getParentFile();
         } else {
             JFileChooser chooser = new JFileChooser();
-            File dir = chooser.getFileSystemView().getDefaultDirectory();
-            File documents = new File(dir, "Documents");
-            if (documents.exists()) {
-                return documents;
+
+            final Settings settings = new Settings();
+            settings.setCategory("user");
+            String defaultFilePath = settings.loadString("defaultFilePath");
+            File defFilePath = new File(defaultFilePath);
+            if (defFilePath.exists()) {
+                return defFilePath;
             } else {
-                return dir;
+
+                File dir = chooser.getFileSystemView().getDefaultDirectory();
+                File documents = new File(dir, "Documents");
+                if (documents.exists()) {
+                    return documents;
+                } else {
+                    return dir;
+                }
             }
         }
     }
