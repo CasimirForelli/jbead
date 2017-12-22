@@ -17,13 +17,18 @@
 package ch.jbead.dialog;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Cursor;
+import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.text.DecimalFormat;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import javax.swing.BorderFactory;
@@ -31,7 +36,9 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
+import javax.swing.JTextArea;
 
+import ch.jbead.BeadCounts;
 import ch.jbead.BeadList;
 import ch.jbead.BeadRun;
 import ch.jbead.JBeadFrame;
@@ -55,6 +62,7 @@ public class TalkingDialog extends JDialog {
     BeadRunViewPanel beadRunView = null;
 
     private BeadList beadList;
+    private BeadCounts beadCounts;
 
     private Map<Byte, String> colorNameMap;
 
@@ -64,6 +72,9 @@ public class TalkingDialog extends JDialog {
     private int currentBeadRunIdx = -1;
 
     private JBeadFrame parentFrame;
+
+    private JProgressBar beadRunProgressBar;
+    private JTextArea beadRunProgressTextArea;
 
     /**
      *
@@ -77,6 +88,7 @@ public class TalkingDialog extends JDialog {
         if (frame.getModel().getRepeat() == 0) return;
 
         this.beadList = new BeadList(frame.getModel());
+        this.beadCounts = new BeadCounts(frame.getModel());
         this.colorNameMap = frame.getModel().getColorNamesMap();
 
         this.currentBeadRunIdx = frame.getModel().getLastReadingPos();
@@ -89,7 +101,7 @@ public class TalkingDialog extends JDialog {
         JPanel main = new JPanel();
         main.setBorder(BorderFactory.createEmptyBorder(7, 7, 7, 7));
         setContentPane(main);
-        setLayout(new BorderLayout());
+        setLayout(new BorderLayout(5, 5));
 
         JPanel form = new JPanel();
         form.setLayout(new GridBagLayout());
@@ -167,6 +179,23 @@ public class TalkingDialog extends JDialog {
 
         add(form, BorderLayout.PAGE_END);
 
+        // Progress
+        form = new JPanel();
+        form.setLayout(new BorderLayout(5, 5));
+        form.add(beadRunProgressBar = new JProgressBar(JProgressBar.VERTICAL, 0, beadList.size()), BorderLayout.WEST);
+        beadRunProgressBar.setValue(beadList.size());
+        Color bg = beadRunProgressBar.getBackground();
+        beadRunProgressBar.setBackground(beadRunProgressBar.getForeground());
+        beadRunProgressBar.setForeground(bg);
+
+        form.add(beadRunProgressTextArea = new JTextArea("Restfarben:", 15, 25));
+        beadRunProgressTextArea.setEnabled(false);
+        beadRunProgressTextArea.setDisabledTextColor(Color.BLACK);
+        beadRunProgressTextArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
+        beadRunProgressTextArea.setBackground(form.getBackground());
+        beadRunProgressTextArea.setLineWrap(true);
+        add(form, BorderLayout.EAST);
+
         setModal(true);
         pack();
         setLocationRelativeTo(null);
@@ -190,6 +219,7 @@ public class TalkingDialog extends JDialog {
                         btnBack.setEnabled(true);
                         btnRestart.setEnabled(true);
                         progressBar.setString(frame.getString("talkingdialog.progress.complete"));
+                        updateProgress();
                         TalkingDialog.this.setCursor(null);
 
                     }
@@ -243,6 +273,7 @@ public class TalkingDialog extends JDialog {
                 currentBeadRun = beadList.get(currentBeadRunIdx);
                 beadRunView.currentBeadRunIdx = currentBeadRunIdx;
                 beadRunView.repaint();
+                updateProgress();
 
                 Thread thread1 = new Thread(new Runnable() {
                     @Override
@@ -267,6 +298,8 @@ public class TalkingDialog extends JDialog {
                 currentBeadRun = null;
                 beadRunView.currentBeadRunIdx = currentBeadRunIdx;
                 beadRunView.repaint();
+                updateProgress();
+
                 if (btnNext != null) btnNext.requestFocusInWindow();
 
             }
@@ -285,6 +318,7 @@ public class TalkingDialog extends JDialog {
                 currentBeadRun = beadList.get(currentBeadRunIdx);
                 beadRunView.currentBeadRunIdx = currentBeadRunIdx;
                 beadRunView.repaint();
+                updateProgress();
 
                 Thread thread1 = new Thread(new Runnable() {
                     @Override
@@ -303,6 +337,50 @@ public class TalkingDialog extends JDialog {
 
         });
 
+    }
+
+    /**
+     *
+     */
+    private void updateProgress() {
+
+        beadRunProgressBar.setValue(beadList.size() - currentBeadRunIdx);
+        String text = calculateRest();
+        beadRunProgressTextArea.setText(text);
+
+    }
+
+    private String calculateRest() {
+
+        StringBuilder restString = new StringBuilder("Restfarben:\n");
+
+        Map<Byte, Integer> counts = new HashMap<Byte, Integer>();
+        int i = 0;
+        // count rest
+        for (BeadRun beadRun : beadList) {
+            Integer count = counts.get(beadRun.getColor());
+            if (count == null) {
+                counts.put(beadRun.getColor(), count = new Integer(0));
+            }
+            i++;
+            if (i > currentBeadRunIdx) {
+                counts.put(beadRun.getColor(), count + beadRun.getCount());
+            }
+        }
+        // prepare text
+        for (Iterator<Byte> iterator = counts.keySet().iterator(); iterator.hasNext();) {
+            Byte c = iterator.next();
+            Integer anz = counts.get(c);
+            if (anz > 0) {
+                String cname = this.colorNameMap.get(c);
+
+                String t = "%4d x %s\n";
+                String t2 = String.format(t, anz, cname);
+                restString.append(t2);
+            }
+        }
+
+        return restString.toString();
     }
 
 }
